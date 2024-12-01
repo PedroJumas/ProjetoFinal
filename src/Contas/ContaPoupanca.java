@@ -36,7 +36,6 @@ public class ContaPoupanca extends Conta {
         } else {
             System.out.println("Saldo insuficiente.");
             
-            
         }
     }
 
