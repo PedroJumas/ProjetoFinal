@@ -21,6 +21,7 @@ public class Main {
 
         if (usuarioLogado != null) {
             exibirMenu(usuarioLogado);
+        
         }
 
         gerenciadorArquivos.gravarUsuarios(usuarios);
