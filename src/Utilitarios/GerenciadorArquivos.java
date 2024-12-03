@@ -1,6 +1,7 @@
 package Utilitarios;
 
 import Usuarios.*;
+import main.Main;
 import Contas.*;
 
 import java.io.*;
@@ -43,15 +44,18 @@ public class GerenciadorArquivos {
     }
 
     public void gravarUsuarios(List<Usuario> usuarios) {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("usuarios.txt"))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("usuarios.txt", true))) { // true ativa o append
             for (Usuario usuario : usuarios) {
                 String tipo = "";
                 if (usuario instanceof Cliente) {
                     tipo = "cliente";
+                    return;
+                } else if (usuario instanceof Gerente) {
+                    tipo = "gerente"; 
+                    return;
                 } else if (usuario instanceof Bancario) {
                     tipo = "bancario";
-                } else if (usuario instanceof Gerente) {
-                    tipo = "gerente";
+                    return;
                 }
                 bw.write(tipo + "," + usuario.getNome() + "," + usuario.getCpf() + "," + usuario.getSenha());
                 bw.newLine();
@@ -65,17 +69,18 @@ public class GerenciadorArquivos {
         List<Conta> contas = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader("contas.txt"))) {
             String linha;
-            
+
             while ((linha = br.readLine()) != null) {
                 String[] campos = linha.split(",");
+                String tipo = campos[0];
 
-                if (campos.length == 6) {  
-                    String tipo = campos[0];
+                // Verifica o número de campos de acordo com o tipo de conta
+                if ((tipo.equals("corrente_principal") || tipo.equals("poupanca")) && campos.length == 4 || 
+                    (tipo.equals("corrente_adicional") && campos.length == 6)) {
+
                     int numeroConta = Integer.parseInt(campos[1]);
                     double saldo = Double.parseDouble(campos[2]);
                     String cpfCliente = campos[3];
-                    double limite = Double.parseDouble(campos[4]);
-                    int contaPrincipal = Integer.parseInt(campos[5]);
 
                     Conta conta = null;
                     switch (tipo) {
@@ -86,7 +91,9 @@ public class GerenciadorArquivos {
                             conta = new ContaPoupanca(numeroConta, saldo);
                             break;
                         case "corrente_adicional":
-                            Conta contaPrincipalObj = encontrarConta(contas, contaPrincipal); 
+                            double limite = Double.parseDouble(campos[4]);
+                            int contaPrincipal = Integer.parseInt(campos[5]);
+                            Conta contaPrincipalObj = encontrarConta(contas, contaPrincipal);
                             if (contaPrincipalObj instanceof ContaCorrentePrincipal) {
                                 conta = new ContaCorrenteAdicional(numeroConta, saldo, limite, (ContaCorrentePrincipal) contaPrincipalObj);
                             } else {
@@ -95,6 +102,12 @@ public class GerenciadorArquivos {
                             break;
                     }
                     if (conta != null) {
+                        Cliente cliente = Main.encontrarCliente(cpfCliente); // Busca o cliente pelo CPF
+                        if (cliente != null) {
+                            cliente.adicionarConta(conta); // Adiciona a conta à lista do cliente
+                        } else {
+                            System.err.println("Cliente não encontrado para a conta " + numeroConta);
+                        }
                         contas.add(conta);
                     }
                 } else {
@@ -107,7 +120,7 @@ public class GerenciadorArquivos {
         return contas;
     }
 
-    private Conta encontrarConta(List<Conta> contas, int numeroConta) {
+    public Conta encontrarConta(List<Conta> contas, int numeroConta) {
         for (Conta conta : contas) {
             if (conta.getNumeroConta() == numeroConta) {
                 return conta;
@@ -117,7 +130,7 @@ public class GerenciadorArquivos {
     }
 
     public void gravarContas(List<Conta> contas) {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("contas.txt"))) {
+    	try (BufferedWriter bw = new BufferedWriter(new FileWriter("contas.txt"))) {
             for (Conta conta : contas) {
                 String tipo = "";
                 if (conta instanceof ContaCorrentePrincipal) {
@@ -127,11 +140,25 @@ public class GerenciadorArquivos {
                 } else if (conta instanceof ContaCorrenteAdicional) {
                     tipo = "corrente_adicional";
                 }
-                bw.write(tipo + "," + conta.getNumeroConta() + "," + conta.getSaldo() + ","); 
+
+                // Obtém o CPF do cliente da conta (se disponível)
+                String cpfCliente = "";
+                for (Usuario usuario : Main.usuarios) {
+                    if (usuario instanceof Cliente) {
+                        Cliente cliente = (Cliente) usuario;
+                        if (cliente.getContas().contains(conta)) {
+                            cpfCliente = cliente.getCpf();
+                            break;
+                        }
+                    }
+                }
+
+                // Escreve os dados da conta no arquivo, incluindo o CPF do cliente
+                bw.write(tipo + "," + conta.getNumeroConta() + "," + conta.getSaldo() + "," + cpfCliente );
 
                 if (conta instanceof ContaCorrenteAdicional) {
                     ContaCorrenteAdicional contaAdicional = (ContaCorrenteAdicional) conta;
-                    bw.write(contaAdicional.getLimite() + "," + contaAdicional.getContaPrincipal().getNumeroConta());
+                    bw.write(","+contaAdicional.getLimite() + "," + contaAdicional.getContaPrincipal().getNumeroConta());
                 }
                 bw.newLine();
             }

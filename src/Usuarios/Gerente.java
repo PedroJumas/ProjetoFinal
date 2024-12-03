@@ -1,6 +1,7 @@
 package Usuarios;
 
 import Contas.*;
+import Utilitarios.GerenciadorArquivos;
 import main.Main;
 
 import java.util.Random;
@@ -8,12 +9,56 @@ import java.util.Scanner;
 
 public class Gerente extends Bancario {
 
+	
     private static Scanner scanner = new Scanner(System.in);
 
     public Gerente(String nome, String cpf, String senha) {
         super(nome, cpf, senha);
     }
 
+    public void criarUsuario() {
+        System.out.println("\n=== CRIAR NOVO USUÁRIO ===");
+        System.out.print("Nome: ");
+        String nome = scanner.nextLine();
+        System.out.print("CPF: ");
+        String cpf = scanner.nextLine();
+        System.out.print("Senha: ");
+        String senha = scanner.nextLine();
+
+        System.out.println("\nTipo de usuário:");
+        System.out.println("1. Cliente");
+        System.out.println("2. Bancário");
+        System.out.println("3. Gerente");
+        System.out.print("Opção: ");
+        int tipoUsuario = scanner.nextInt();
+        scanner.nextLine(); // Consumir a quebra de linha
+
+        Usuario novoUsuario = null;
+        switch (tipoUsuario) {
+            case 1:
+                novoUsuario = new Cliente(nome, cpf, senha);
+                break;
+            case 2:
+                novoUsuario = new Bancario(nome, cpf, senha);
+                break;
+            case 3:
+                novoUsuario = new Gerente(nome, cpf, senha);
+                break;
+            default:
+                System.out.println("Opção inválida.");
+                return;
+        }
+
+        if (novoUsuario != null) {
+            Main.usuarios.add(novoUsuario);
+            System.out.println("\nUsuário criado com sucesso!");
+        }
+       
+
+        GerenciadorArquivos gerenciadorArquivos = new GerenciadorArquivos();
+        gerenciadorArquivos.gravarUsuarios(Main.usuarios);
+    }
+    
     public void criarConta(Cliente cliente) {
         int numeroConta = gerarNumeroConta();
         Conta novaConta = null;

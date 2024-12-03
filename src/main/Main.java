@@ -9,21 +9,29 @@ import java.util.Scanner;
 public class Main {
 
     private static final GerenciadorArquivos gerenciadorArquivos = new GerenciadorArquivos();
-    private static List<Usuario> usuarios;
+    public static List<Usuario> usuarios;
     public static List<Conta> contas; // Tornando a lista contas pública
     private static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
         usuarios = gerenciadorArquivos.lerUsuarios();
-        contas = gerenciadorArquivos.lerContas(); 
+        contas = gerenciadorArquivos.lerContas();
 
-        Usuario usuarioLogado = login();
+        boolean continuar; // Variável para controlar o loop
 
-        if (usuarioLogado != null) {
-            exibirMenu(usuarioLogado);
-        
-            
-        }
+        do {
+            Usuario usuarioLogado = login();
+
+            if (usuarioLogado != null) {
+                exibirMenu(usuarioLogado);
+            }
+
+            // Pergunta se o usuário deseja fazer outro login
+            System.out.print("Deseja fazer outro login (s/n)? ");
+            String resposta = scanner.nextLine();
+            continuar = resposta.equalsIgnoreCase("s");
+
+        } while (continuar); // Repete o loop enquanto o usuário digitar "s"
 
         gerenciadorArquivos.gravarUsuarios(usuarios);
         gerenciadorArquivos.gravarContas(contas);
@@ -151,13 +159,18 @@ public class Main {
         scanner.nextLine(); // Consumir a quebra de linha
 
         Conta contaOrigem = encontrarConta(cliente, numeroContaOrigem);
-        Conta contaDestino = encontrarConta(cliente, numeroContaDestino);
+        
+        GerenciadorArquivos gerenciadorArquivos = new GerenciadorArquivos(); 
+        Conta contaDestino = gerenciadorArquivos.encontrarConta(Main.contas, numeroContaDestino);
+        
 
         if (contaOrigem != null && contaDestino != null) {
             contaOrigem.transferir(valor, contaDestino);
         } else {
             System.out.println("Conta de origem ou destino não encontrada.");
         }
+    
+        
     }
 
 
@@ -271,15 +284,17 @@ public class Main {
         }
     }
 
-    private static void exibirMenuGerente(Gerente gerente) {
+    public static void exibirMenuGerente(Gerente gerente) {
         int opcao;
+        String cpfCliente;
         do {
             System.out.println("\n=== MENU GERENTE ===");
             System.out.println("1. Sacar de conta de cliente");
             System.out.println("2. Depositar em conta de cliente");
             System.out.println("3. Transferir entre contas de clientes");
-            System.out.println("4. Criar nova conta");
-            System.out.println("5. Sair");
+            System.out.println("4. Criar novo usuario");
+            System.out.println("5. Criar nova conta");
+            System.out.println("6. Sair");
             System.out.print("Opção: ");
             opcao = scanner.nextInt();
             scanner.nextLine(); // Consumir a quebra de linha
@@ -295,8 +310,11 @@ public class Main {
                     transferirEntreClientes(gerente); // Reutiliza o método do Bancario
                     break;
                 case 4:
+                    gerente.criarUsuario();
+                    break;
+                case 5:
                     System.out.print("CPF do cliente: ");
-                    String cpfCliente = scanner.nextLine();
+                    cpfCliente = scanner.nextLine();
                     Cliente cliente = encontrarCliente(cpfCliente);
                     if (cliente != null) {
                         gerente.criarConta(cliente);
@@ -304,13 +322,15 @@ public class Main {
                         System.out.println("Cliente não encontrado.");
                     }
                     break;
-                case 5:
+                case 6:
                     System.out.println("Saindo...");
                     break;
                 default:
                     System.out.println("Opção inválida.");
             }
-        } while (opcao != 5);
+        } while (opcao != 6);
+        
+        
     }
 
     private static Conta encontrarConta(Cliente cliente, int numeroConta) {
@@ -322,7 +342,7 @@ public class Main {
         return null;
     }
 
-    private static Cliente encontrarCliente(String cpf) {
+    public static Cliente encontrarCliente(String cpf) {
         for (Usuario usuario : usuarios) {
             if (usuario instanceof Cliente && usuario.getCpf().equals(cpf)) {
                 return (Cliente) usuario;
