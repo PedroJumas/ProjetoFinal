@@ -146,7 +146,7 @@ public class Main {
         }
     }
 
-    private static void transferir(Cliente cliente) {
+        private static void transferir(Cliente cliente) {
         System.out.println("\n=== TRANSFERÊNCIA ===");
         System.out.print("Número da conta de origem: ");
         int numeroContaOrigem = scanner.nextInt();
@@ -162,6 +162,11 @@ public class Main {
         
         GerenciadorArquivos gerenciadorArquivos = new GerenciadorArquivos(); 
         Conta contaDestino = gerenciadorArquivos.encontrarConta(Main.contas, numeroContaDestino);
+        
+        //cliente.getContas().equals("corrente_principal");
+        System.out.println("*********");
+        if(contaDestino.getNumeroConta())
+        //System.out.println("teste: " + cliente.getContas().toString());	
         
 
         if (contaOrigem != null && contaDestino != null) {

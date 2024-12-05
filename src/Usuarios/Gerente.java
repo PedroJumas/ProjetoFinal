@@ -9,7 +9,6 @@ import java.util.Scanner;
 
 public class Gerente extends Bancario {
 
-	
     private static Scanner scanner = new Scanner(System.in);
 
     public Gerente(String nome, String cpf, String senha) {
@@ -53,14 +52,13 @@ public class Gerente extends Bancario {
             Main.usuarios.add(novoUsuario);
             System.out.println("\nUsuário criado com sucesso!");
         }
-       
 
         GerenciadorArquivos gerenciadorArquivos = new GerenciadorArquivos();
         gerenciadorArquivos.gravarUsuarios(Main.usuarios);
     }
-    
+
     public void criarConta(Cliente cliente) {
-        int numeroConta = gerarNumeroConta();
+        int numeroConta = gerarNumeroConta(); // Gerar número único para a conta
         Conta novaConta = null;
 
         System.out.println("\nTipo de conta:");
@@ -82,7 +80,10 @@ public class Gerente extends Bancario {
 
         switch (tipoConta) {
             case CORRENTE_PRINCIPAL:
-                novaConta = new ContaCorrentePrincipal(numeroConta, 0);
+                System.out.print("Digite o limite do cheque especial: ");
+                double limiteChequeEspecial = scanner.nextDouble();
+                scanner.nextLine(); // Consumir a quebra de linha
+                novaConta = new ContaCorrentePrincipal(numeroConta, 0, limiteChequeEspecial);  // Passar o limite
                 break;
             case POUPANCA:
                 novaConta = new ContaPoupanca(numeroConta, 0);
@@ -106,8 +107,8 @@ public class Gerente extends Bancario {
         }
 
         if (novaConta != null) {
-            cliente.adicionarConta(novaConta);
-            Main.contas.add(novaConta);
+            cliente.adicionarConta(novaConta);  // Adiciona a conta ao cliente
+            Main.contas.add(novaConta);  // Adiciona a conta à lista geral de contas
             System.out.println("Conta criada com sucesso! Número da conta: " + numeroConta);
         }
     }

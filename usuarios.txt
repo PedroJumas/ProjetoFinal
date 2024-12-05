@@ -2,3 +2,4 @@ cliente,João da Silva,12345678901,senha123
 cliente,Maria Souza,98765432109,senha456
 bancario,Pedro Alves,10111213141,senha789
 gerente,Ana Oliveira,14151617181,senha101
+cliente,Pedro Gabriel,21345678901,senha32145

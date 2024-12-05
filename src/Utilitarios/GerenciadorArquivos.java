@@ -44,18 +44,15 @@ public class GerenciadorArquivos {
     }
 
     public void gravarUsuarios(List<Usuario> usuarios) {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("usuarios.txt", true))) { // true ativa o append
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("usuarios.txt"))) { // true ativa o append
             for (Usuario usuario : usuarios) {
                 String tipo = "";
                 if (usuario instanceof Cliente) {
                     tipo = "cliente";
-                    return;
                 } else if (usuario instanceof Gerente) {
                     tipo = "gerente"; 
-                    return;
                 } else if (usuario instanceof Bancario) {
                     tipo = "bancario";
-                    return;
                 }
                 bw.write(tipo + "," + usuario.getNome() + "," + usuario.getCpf() + "," + usuario.getSenha());
                 bw.newLine();
@@ -85,7 +82,8 @@ public class GerenciadorArquivos {
                     Conta conta = null;
                     switch (tipo) {
                         case "corrente_principal":
-                            conta = new ContaCorrentePrincipal(numeroConta, saldo);
+                            double limiteChequeEspecial = 1000; // Aqui você pode pegar o limite do arquivo se necessário
+                            conta = new ContaCorrentePrincipal(numeroConta, saldo, limiteChequeEspecial);  // Passando o limite
                             break;
                         case "poupanca":
                             conta = new ContaPoupanca(numeroConta, saldo);
@@ -130,7 +128,7 @@ public class GerenciadorArquivos {
     }
 
     public void gravarContas(List<Conta> contas) {
-    	try (BufferedWriter bw = new BufferedWriter(new FileWriter("contas.txt"))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("contas.txt"))) {
             for (Conta conta : contas) {
                 String tipo = "";
                 if (conta instanceof ContaCorrentePrincipal) {
@@ -154,7 +152,7 @@ public class GerenciadorArquivos {
                 }
 
                 // Escreve os dados da conta no arquivo, incluindo o CPF do cliente
-                bw.write(tipo + "," + conta.getNumeroConta() + "," + conta.getSaldo() + "," + cpfCliente );
+                bw.write(tipo + "," + conta.getNumeroConta() + "," + conta.getSaldo() + "," + cpfCliente);
 
                 if (conta instanceof ContaCorrenteAdicional) {
                     ContaCorrenteAdicional contaAdicional = (ContaCorrenteAdicional) conta;
