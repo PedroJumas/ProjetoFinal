@@ -3,10 +3,12 @@ package Usuarios;
 import Contas.Conta;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Cliente extends Usuario {
 
     private List<Conta> contas;
+    private static Scanner scanner = new Scanner(System.in); 
 
     public Cliente(String nome, String cpf, String senha) {
         super(nome, cpf, senha);
@@ -21,15 +23,84 @@ public class Cliente extends Usuario {
         return contas;
     }
 
-    public void sacar(Conta conta, double valor) {
-        conta.sacar(valor);
+    public void verSaldo() {
+        System.out.println("\n=== SALDO DAS CONTAS ===");
+        for (Conta conta : this.getContas()) {
+            System.out.println("Conta " + conta.getNumeroConta() + ": R$" + conta.getSaldo());
+        }
     }
 
-    public void depositar(Conta conta, double valor) {
-        conta.depositar(valor);
+    public void sacar() {
+    	int numeroConta;
+    	double valor;
+    	
+        System.out.println("\n=== SAQUE ===");
+        System.out.print("Número da conta: ");
+        numeroConta = scanner.nextInt();
+        scanner.nextLine(); // Consumir a quebra de linha
+        System.out.print("Valor a sacar: ");
+        valor = scanner.nextDouble();
+        scanner.nextLine(); // Consumir a quebra de linha
+
+        Conta conta = encontrarConta(numeroConta);
+        if (conta != null) {
+            conta.sacar(valor); 
+        } else {
+            System.out.println("Conta não encontrada.");
+        }
     }
 
-    public void transferir(Conta contaOrigem, Conta contaDestino, double valor) {
-        contaOrigem.transferir(valor, contaDestino);
+    public void depositar() {
+    	int numeroConta;
+    	double valor;
+    	
+        System.out.println("\n=== DEPÓSITO ===");
+        System.out.print("Número da conta: ");
+        numeroConta = scanner.nextInt();
+        scanner.nextLine(); // Consumir a quebra de linha
+        System.out.print("Valor a depositar: ");
+        valor = scanner.nextDouble();
+        scanner.nextLine(); // Consumir a quebra de linha
+
+        Conta conta = encontrarConta(numeroConta);
+        if (conta != null) {
+            conta.depositar(valor); 
+        } else {
+            System.out.println("Conta não encontrada.");
+        }
+    }
+
+    public void transferir() {
+    	int numeroContaDestino,numeroContaOrigem;
+    	double valor;
+    	
+        System.out.println("\n=== TRANSFERÊNCIA ===");
+        System.out.print("Número da conta de origem: ");
+        numeroContaOrigem = scanner.nextInt();
+        scanner.nextLine(); // Consumir a quebra de linha
+        System.out.print("Número da conta de destino: ");
+        numeroContaDestino = scanner.nextInt();
+        scanner.nextLine(); // Consumir a quebra de linha
+        System.out.print("Valor a transferir: ");
+        valor = scanner.nextDouble();
+        scanner.nextLine(); // Consumir a quebra de linha
+
+        Conta contaOrigem = encontrarConta(numeroContaOrigem);
+        Conta contaDestino = encontrarConta(numeroContaDestino);
+
+        if (contaOrigem != null && contaDestino != null) {
+            contaOrigem.transferir(valor, contaDestino); 
+        } else {
+            System.out.println("Conta de origem ou destino não encontrada.");
+        }
+    }
+
+    public Conta encontrarConta(int numeroConta) {
+        for (Conta conta : this.getContas()) {
+            if (conta.getNumeroConta() == numeroConta) {
+                return conta;
+            }
+        }
+        return null;
     }
 }

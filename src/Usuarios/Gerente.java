@@ -16,20 +16,23 @@ public class Gerente extends Bancario {
     }
 
     public void criarUsuario() {
+    	String nome,cpf,senha;
+    	int tipoUsuario;
+    	
         System.out.println("\n=== CRIAR NOVO USUÁRIO ===");
         System.out.print("Nome: ");
-        String nome = scanner.nextLine();
+        nome = scanner.nextLine();
         System.out.print("CPF: ");
-        String cpf = scanner.nextLine();
+        cpf = scanner.nextLine();
         System.out.print("Senha: ");
-        String senha = scanner.nextLine();
+        senha = scanner.nextLine();
 
         System.out.println("\nTipo de usuário:");
         System.out.println("1. Cliente");
         System.out.println("2. Bancário");
         System.out.println("3. Gerente");
         System.out.print("Opção: ");
-        int tipoUsuario = scanner.nextInt();
+        tipoUsuario = scanner.nextInt();
         scanner.nextLine(); // Consumir a quebra de linha
 
         Usuario novoUsuario = null;
@@ -58,7 +61,10 @@ public class Gerente extends Bancario {
     }
 
     public void criarConta(Cliente cliente) {
-        int numeroConta = gerarNumeroConta(); // Gerar número único para a conta
+    	int opcaoTipoConta,numeroConta,numeroContaPrincipal;
+    	double limiteChequeEspecial,limite;
+    	
+    	numeroConta = gerarNumeroConta();
         Conta novaConta = null;
 
         System.out.println("\nTipo de conta:");
@@ -67,7 +73,7 @@ public class Gerente extends Bancario {
         System.out.println("3. Conta Corrente Adicional");
         System.out.print("Opção: ");
 
-        int opcaoTipoConta = scanner.nextInt();
+        opcaoTipoConta = scanner.nextInt();
         scanner.nextLine(); // Consumir a quebra de linha
 
         TipoConta tipoConta;
@@ -81,22 +87,22 @@ public class Gerente extends Bancario {
         switch (tipoConta) {
             case CORRENTE_PRINCIPAL:
                 System.out.print("Digite o limite do cheque especial: ");
-                double limiteChequeEspecial = scanner.nextDouble();
+                limiteChequeEspecial = scanner.nextDouble();
                 scanner.nextLine(); // Consumir a quebra de linha
-                novaConta = new ContaCorrentePrincipal(numeroConta, 0, limiteChequeEspecial);  // Passar o limite
+                novaConta = new ContaCorrentePrincipal(numeroConta, 0, limiteChequeEspecial);
                 break;
             case POUPANCA:
                 novaConta = new ContaPoupanca(numeroConta, 0);
                 break;
             case CORRENTE_ADICIONAL:
                 System.out.print("Número da conta principal: ");
-                int numeroContaPrincipal = scanner.nextInt();
+                numeroContaPrincipal = scanner.nextInt();
                 scanner.nextLine(); // Consumir a quebra de linha
                 System.out.print("Limite de gastos: ");
-                double limite = scanner.nextDouble();
+                limite = scanner.nextDouble();
                 scanner.nextLine(); // Consumir a quebra de linha
 
-                Conta contaPrincipal = encontrarConta(cliente, numeroContaPrincipal);
+                Conta contaPrincipal = cliente.encontrarConta(numeroContaPrincipal); 
                 if (contaPrincipal instanceof ContaCorrentePrincipal) {
                     novaConta = new ContaCorrenteAdicional(numeroConta, 0, limite, (ContaCorrentePrincipal) contaPrincipal);
                 } else {
@@ -107,8 +113,8 @@ public class Gerente extends Bancario {
         }
 
         if (novaConta != null) {
-            cliente.adicionarConta(novaConta);  // Adiciona a conta ao cliente
-            Main.contas.add(novaConta);  // Adiciona a conta à lista geral de contas
+            cliente.adicionarConta(novaConta); 
+            Main.contas.add(novaConta);
             System.out.println("Conta criada com sucesso! Número da conta: " + numeroConta);
         }
     }
@@ -116,6 +122,7 @@ public class Gerente extends Bancario {
     private int gerarNumeroConta() {
         Random random = new Random();
         int numeroConta;
+        
         do {
             numeroConta = random.nextInt(10000);
         } while (contaExiste(numeroConta));
@@ -129,14 +136,5 @@ public class Gerente extends Bancario {
             }
         }
         return false;
-    }
-
-    private static Conta encontrarConta(Cliente cliente, int numeroConta) {
-        for (Conta conta : cliente.getContas()) {
-            if (conta.getNumeroConta() == numeroConta) {
-                return conta;
-            }
-        }
-        return null;
     }
 }

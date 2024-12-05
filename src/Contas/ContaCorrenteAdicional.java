@@ -13,8 +13,8 @@ public class ContaCorrenteAdicional extends Conta {
 
     @Override
     public void sacar(double valor) {
-        if (valor <= this.saldo + this.limite) {
-            this.saldo -= valor;
+        if (valor <= this.getSaldo() + this.limite) { 
+            this.setSaldo(this.getSaldo() - valor); 
             System.out.println("Saque realizado com sucesso!");
         } else {
             System.out.println("Saldo insuficiente.");
@@ -23,14 +23,20 @@ public class ContaCorrenteAdicional extends Conta {
 
     @Override
     public void transferir(double valor, Conta contaDestino) {
-        if (valor <= this.saldo + this.limite) {
-            this.saldo -= valor;
-            contaDestino.depositar(valor);
-            System.out.println("Transferência realizada com sucesso!");
+        if (valor <= this.getSaldo() + this.limite && contaDestino != null) { 
+            if (contaDestino instanceof ContaCorrentePrincipal) { 
+                this.setSaldo(this.getSaldo() - valor); 
+                contaDestino.depositar(valor);
+                System.out.println("Transferência realizada com sucesso!");
+            } else {
+                System.out.println("A conta de destino não é uma conta corrente principal.");
+            }
         } else {
-            System.out.println("Saldo insuficiente.");
+            System.out.println("Saldo insuficiente ou conta de destino inválida.");
         }
     }
+
+    // Getters e setters
 
     public double getLimite() {
         return limite;

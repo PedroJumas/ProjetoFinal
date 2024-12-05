@@ -13,13 +13,14 @@ public class GerenciadorArquivos {
     public List<Usuario> lerUsuarios() {
         List<Usuario> usuarios = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader("usuarios.txt"))) {
-            String linha;
+            String linha,tipo,nome,cpf,senha;
+            
             while ((linha = br.readLine()) != null) {
                 String[] campos = linha.split(",");
-                String tipo = campos[0];
-                String nome = campos[1];
-                String cpf = campos[2];
-                String senha = campos[3];
+                tipo = campos[0];
+                nome = campos[1];
+                cpf = campos[2];
+                senha = campos[3];
 
                 Usuario usuario = null;
                 switch (tipo) {
@@ -47,6 +48,7 @@ public class GerenciadorArquivos {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("usuarios.txt"))) { // true ativa o append
             for (Usuario usuario : usuarios) {
                 String tipo = "";
+                
                 if (usuario instanceof Cliente) {
                     tipo = "cliente";
                 } else if (usuario instanceof Gerente) {
@@ -65,32 +67,34 @@ public class GerenciadorArquivos {
     public List<Conta> lerContas() {
         List<Conta> contas = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader("contas.txt"))) {
-            String linha;
+            String linha,tipo,cpfCliente;
+            int numeroConta,contaPrincipal;
+            double saldo,limiteChequeEspecial,limite;
 
             while ((linha = br.readLine()) != null) {
                 String[] campos = linha.split(",");
-                String tipo = campos[0];
+                tipo = campos[0];
 
                 // Verifica o número de campos de acordo com o tipo de conta
                 if ((tipo.equals("corrente_principal") || tipo.equals("poupanca")) && campos.length == 4 || 
                     (tipo.equals("corrente_adicional") && campos.length == 6)) {
 
-                    int numeroConta = Integer.parseInt(campos[1]);
-                    double saldo = Double.parseDouble(campos[2]);
-                    String cpfCliente = campos[3];
+                    numeroConta = Integer.parseInt(campos[1]);
+                    saldo = Double.parseDouble(campos[2]);
+                    cpfCliente = campos[3];
 
                     Conta conta = null;
                     switch (tipo) {
                         case "corrente_principal":
-                            double limiteChequeEspecial = 1000; // Aqui você pode pegar o limite do arquivo se necessário
+                            limiteChequeEspecial = 1000; // Aqui você pode pegar o limite do arquivo se necessário
                             conta = new ContaCorrentePrincipal(numeroConta, saldo, limiteChequeEspecial);  // Passando o limite
                             break;
                         case "poupanca":
                             conta = new ContaPoupanca(numeroConta, saldo);
                             break;
                         case "corrente_adicional":
-                            double limite = Double.parseDouble(campos[4]);
-                            int contaPrincipal = Integer.parseInt(campos[5]);
+                            limite = Double.parseDouble(campos[4]);
+                            contaPrincipal = Integer.parseInt(campos[5]);
                             Conta contaPrincipalObj = encontrarConta(contas, contaPrincipal);
                             if (contaPrincipalObj instanceof ContaCorrentePrincipal) {
                                 conta = new ContaCorrenteAdicional(numeroConta, saldo, limite, (ContaCorrentePrincipal) contaPrincipalObj);
@@ -131,6 +135,8 @@ public class GerenciadorArquivos {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("contas.txt"))) {
             for (Conta conta : contas) {
                 String tipo = "";
+                String cpfCliente = "";
+                
                 if (conta instanceof ContaCorrentePrincipal) {
                     tipo = "corrente_principal";
                 } else if (conta instanceof ContaPoupanca) {
@@ -140,7 +146,6 @@ public class GerenciadorArquivos {
                 }
 
                 // Obtém o CPF do cliente da conta (se disponível)
-                String cpfCliente = "";
                 for (Usuario usuario : Main.usuarios) {
                     if (usuario instanceof Cliente) {
                         Cliente cliente = (Cliente) usuario;
