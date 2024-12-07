@@ -1,6 +1,10 @@
 package Usuarios;
 
 import Contas.Conta;
+import Contas.ContaCorrenteAdicional;
+import Contas.ContaCorrentePrincipal;
+import Contas.ContaPoupanca;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -26,7 +30,18 @@ public class Cliente extends Usuario {
     public void verSaldo() {
         System.out.println("\n=== SALDO DAS CONTAS ===");
         for (Conta conta : this.getContas()) {
-            System.out.println("Conta " + conta.getNumeroConta() + ": R$" + conta.getSaldo());
+            if (conta instanceof ContaCorrentePrincipal) {
+                ContaCorrentePrincipal contaCorrente = (ContaCorrentePrincipal) conta;
+                System.out.println("Conta " + contaCorrente.getNumeroConta() + ": R$" + contaCorrente.getSaldo() + " - Limite do Cheque Especial: R$" + contaCorrente.getLimiteChequeEspecial());
+            }
+            if (conta instanceof ContaPoupanca) {
+            	ContaPoupanca contaPoupanca = (ContaPoupanca) conta;
+                System.out.println("Conta " + contaPoupanca.getNumeroConta() +  ": R$" + contaPoupanca.getSaldo());
+            }
+            if (conta instanceof ContaCorrenteAdicional) {
+            	ContaCorrenteAdicional contaAdicional = (ContaCorrenteAdicional) conta;
+                System.out.println("Conta " + contaAdicional.getNumeroConta() +  ": R$" + contaAdicional.getSaldo() + " - Limite: R$" + contaAdicional.getLimite());
+            }
         }
     }
 

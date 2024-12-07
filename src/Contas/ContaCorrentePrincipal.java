@@ -2,7 +2,7 @@ package Contas;
 
 public class ContaCorrentePrincipal extends Conta {
 
-    private double limiteChequeEspecial;
+    public double limiteChequeEspecial;
 
     public ContaCorrentePrincipal(int numeroConta, double saldo, double limiteChequeEspecial) {
         super(numeroConta, saldo);
@@ -29,7 +29,7 @@ public class ContaCorrentePrincipal extends Conta {
                 this.setSaldo(0);
                 this.limiteChequeEspecial -= valorUsadoDoLimite;
             }
-            System.out.println("Saque realizado com sucesso!");
+            System.out.println("Saque realizado com sucesso! \n Você ainda possui R$");
         } else {
             System.out.println("Saldo insuficiente.");
         }
@@ -47,9 +47,9 @@ public class ContaCorrentePrincipal extends Conta {
                 this.setSaldo(0);
                 this.limiteChequeEspecial -= valorUsadoDoLimite;
             }
-            if (contaDestino instanceof ContaCorrentePrincipal) { // Verificação instanceof
+            if (contaDestino instanceof ContaCorrentePrincipal || contaDestino instanceof ContaPoupanca) { // Verificação instanceof
                 contaDestino.depositar(valor);
-                System.out.println("Transferência realizada com sucesso!");
+                System.out.println("Transferência realizada com sucesso!\nainda possui R$ "+limiteChequeEspecial+ " do seu cheque especial!");
             } else {
                 System.out.println("A conta de destino não é uma conta corrente principal.");
             }
